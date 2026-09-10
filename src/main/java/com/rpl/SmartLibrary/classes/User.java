@@ -3,12 +3,12 @@ package com.rpl.SmartLibrary.classes;
 public class User {
 
     private String username;
-    private String NIM;
+    private String id;
     private String password;
 
-    public User(String username, String NIM, String password){
+    public User(String username, String id, String password){
         setUsername(username);
-        setNIM(NIM);
+        setid(id);
         setPassword(password);
     }
 
@@ -20,12 +20,12 @@ public class User {
         this.username = username;
     }
 
-    public String getNIM() {
-        return NIM;
+    public String getid() {
+        return id;
     }
 
-    public void setNIM(String NIM) {
-        this.NIM = NIM;
+    public void setid(String id) {
+        this.id = id;
     }
 
     public String getPassword() {
