@@ -10,10 +10,17 @@ public class User {
     private @Getter String password;
     private @Getter boolean admin;
 
-    public User(String username, String id, String password){
+    public User(String username, String id, String password) {
         setUsername(username);
         setId(id);
         setPassword(password);
+    }
+
+    public User(String username, String id, String password, boolean admin) {
+        setUsername(username);
+        setId(id);
+        setPassword(password);
+        setAdmin(admin);
     }
 
     public void setUsername(String username) {
