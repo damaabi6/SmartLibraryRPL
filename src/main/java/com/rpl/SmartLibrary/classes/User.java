@@ -5,10 +5,10 @@ import lombok.Setter;
 
 public class User {
 
-
     private @Getter String username;
     private @Getter String id;
     private @Getter String password;
+    private @Getter boolean admin;
 
     public User(String username, String id, String password){
         setUsername(username);
@@ -26,5 +26,9 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
     }
 }
