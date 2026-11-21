@@ -1,7 +1,6 @@
 package com.rpl.SmartLibrary.classes;
 
 import lombok.Getter;
-import lombok.Setter;
 
 public class User {
 
@@ -9,12 +8,6 @@ public class User {
     private @Getter String id;
     private @Getter String password;
     private @Getter boolean admin;
-
-    public User(String username, String id, String password) {
-        setUsername(username);
-        setId(id);
-        setPassword(password);
-    }
 
     public User(String username, String id, String password, boolean admin) {
         setUsername(username);
