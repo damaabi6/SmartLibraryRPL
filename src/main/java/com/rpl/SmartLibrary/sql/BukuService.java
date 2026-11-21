@@ -24,7 +24,7 @@ public class BukuService {
 
     @Transactional
     public BukuResponse create(BukuRequest req) {
-        if (repo.existByISBN(req.isbn())) {
+        if (repo.existsByIsbn(req.isbn())) {
             throw new DuplicateIsbnException(req.isbn());
         }
         Buku b = new Buku();
