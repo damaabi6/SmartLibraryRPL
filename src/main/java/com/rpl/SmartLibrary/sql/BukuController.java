@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 
 @RestController
-@RequestMapping("/api/Buku")
+@RequestMapping("/api/buku")
 public class BukuController {
     private final BukuService service;
 
@@ -29,7 +29,7 @@ public class BukuController {
     @PostMapping
     public ResponseEntity<BukuResponse> create(@Valid @RequestBody BukuRequest req) {
         BukuResponse created = service.create(req);
-        URI location = URI.create("/api/Buku/" + created.id());
+        URI location = URI.create("/api/buku/" + created.id());
         return ResponseEntity.created(location).body(created);   // 201 + Location header
     }
 
