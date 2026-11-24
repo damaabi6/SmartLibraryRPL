@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign Up</title>
+</head>
+<body>
+  <h1>Sign Up</h1>
+
+  <form id="form-signup">
+    <p><label>Username<br><input type="text" name="username" required></label></p>
+    <p><label>Password<br><input type="password" name="password" required></label></p>
+    <p><label>Nama Lengkap<br><input type="text" name="nama_lengkap" required></label></p>
+    <p><label>Program Studi<br><input type="text" name="program_studi"></label></p>
+    <p><label>Angkatan<br><input type="text" name="angkatan" maxlength="4"></label></p>
+    <p><label>No. Telepon<br><input type="text" name="no_telepon"></label></p>
+    <p><label>Alamat<br><textarea name="alamat" rows="3" cols="40"></textarea></label></p>
+    <button type="submit">Daftar</button>
+  </form>
+
+  <p id="pesan"></p>
+  <p>Sudah punya akun? <a href="index.html">Login</a></p>
+
+  <script>
+    const form = document.getElementById("form-signup");
+    const pesan = document.getElementById("pesan");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(form));
+
+      try {
+        const res = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (res.status === 201) {
+          pesan.textContent = "Pendaftaran berhasil. Mengalihkan ke halaman login...";
+          setTimeout(() => location.href = "index.html", 1200);
+        } else if (res.status === 409) {
+          pesan.textContent = "Username sudah dipakai.";
+        } else if (res.status === 400) {
+          pesan.textContent = "Username dan password wajib diisi.";
+        } else {
+          pesan.textContent = "Gagal mendaftar (status " + res.status + ").";
+        }
+      } catch (err) {
+        pesan.textContent = "Tidak bisa terhubung ke server.";
+      }
+    });
+  </script>
+</body>
+</html>

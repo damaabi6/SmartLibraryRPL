@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home</title>
+</head>
+<body>
+  <h1>Home</h1>
+  <p id="sapaan"></p>
+
+  <ul>
+    <li><a href="tambah-buku.html">Add Buku</a></li>
+    <li><a href="#" id="logout">Logout</a></li>
+  </ul>
+
+  <script>
+    const tersimpan = sessionStorage.getItem("pengguna");
+    if (!tersimpan) {
+      location.href = "index.html";
+    } else {
+      const pengguna = JSON.parse(tersimpan);
+      document.getElementById("sapaan").textContent =
+        "Halo, " + (pengguna.nama_lengkap || pengguna.username) + "!";
+    }
+
+    document.getElementById("logout").addEventListener("click", (e) => {
+      e.preventDefault();
+      sessionStorage.removeItem("pengguna");
+      location.href = "index.html";
+    });
+  </script>
+</body>
+</html>

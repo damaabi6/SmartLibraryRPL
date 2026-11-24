@@ -3,50 +3,45 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tambah Buku</title>
+  <title>Login</title>
 </head>
 <body>
-  <h1>Tambah Buku</h1>
+  <h1>Login</h1>
 
-  <form id="form-buku">
-    <p><label>ISBN<br><input type="text" name="isbn" minlength="13" maxlength="13" required></label></p>
-    <p><label>Judul<br><input type="text" name="judul" required></label></p>
-    <p><label>Penulis<br><input type="text" name="penulis" required></label></p>
-    <p><label>Penerbit<br><input type="text" name="penerbit"></label></p>
-    <p><label>Tahun Terbit<br><input type="text" name="tahunTerbit" maxlength="4"></label></p>
-    <p><label>Kategori<br><input type="text" name="kategori"></label></p>
-    <p><label>Sinopsis<br><textarea name="sinopsis" rows="4" cols="40"></textarea></label></p>
-    <p><label>Stok<br><input type="number" name="stok" min="0" value="0" required></label></p>
-    <button type="submit">Simpan</button>
+  <form id="form-login">
+    <p><label>Username<br><input type="text" name="username" required></label></p>
+    <p><label>Password<br><input type="password" name="password" required></label></p>
+    <button type="submit">Login</button>
   </form>
 
   <p id="pesan"></p>
+  <p>Belum punya akun? <a href="signup.html">Daftar</a></p>
 
   <script>
-    const form = document.getElementById("form-buku");
+    if (sessionStorage.getItem("pengguna")) location.href = "home.html";
+
+    const form = document.getElementById("form-login");
     const pesan = document.getElementById("pesan");
 
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const data = Object.fromEntries(new FormData(form));
-      data.stok = parseInt(data.stok, 10) || 0;
 
       try {
-        const res = await fetch("/api/buku", {
+        const res = await fetch("/api/auth/login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data)
         });
 
-        if (res.status === 201) {
-          const buku = await res.json();
-          pesan.textContent = "Berhasil disimpan (id: " + buku.id + ")";
-          form.reset();
-        } else if (res.status === 409) {
-          pesan.textContent = "Gagal: ISBN sudah terdaftar.";
+        if (res.ok) {
+          const pengguna = await res.json();
+          sessionStorage.setItem("pengguna", JSON.stringify(pengguna));
+          location.href = "home.html";
+        } else if (res.status === 401) {
+          pesan.textContent = "Username atau password salah.";
         } else {
-          pesan.textContent = "Gagal menyimpan (status " + res.status + ").";
+          pesan.textContent = "Gagal login (status " + res.status + ").";
         }
       } catch (err) {
         pesan.textContent = "Tidak bisa terhubung ke server.";
