@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tambah Buku</title>
+</head>
+<body>
+  <h1>Tambah Buku</h1>
+
+  <form id="form-buku">
+    <p><label>ISBN<br><input type="text" name="isbn" minlength="13" maxlength="13" required></label></p>
+    <p><label>Judul<br><input type="text" name="judul" required></label></p>
+    <p><label>Penulis<br><input type="text" name="penulis" required></label></p>
+    <p><label>Penerbit<br><input type="text" name="penerbit"></label></p>
+    <p><label>Tahun Terbit<br><input type="text" name="tahunTerbit" maxlength="4"></label></p>
+    <p><label>Kategori<br><input type="text" name="kategori"></label></p>
+    <p><label>Sinopsis<br><textarea name="sinopsis" rows="4" cols="40"></textarea></label></p>
+    <p><label>Stok<br><input type="number" name="stok" min="0" value="0" required></label></p>
+    <button type="submit">Simpan</button>
+  </form>
+
+  <p id="pesan"></p>
+
+  <script>
+    const form = document.getElementById("form-buku");
+    const pesan = document.getElementById("pesan");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const data = Object.fromEntries(new FormData(form));
+      data.stok = parseInt(data.stok, 10) || 0;
+
+      try {
+        const res = await fetch("/api/buku", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        if (res.status === 201) {
+          const buku = await res.json();
+          pesan.textContent = "Berhasil disimpan (id: " + buku.id + ")";
+          form.reset();
+        } else if (res.status === 409) {
+          pesan.textContent = "Gagal: ISBN sudah terdaftar.";
+        } else {
+          pesan.textContent = "Gagal menyimpan (status " + res.status + ").";
+        }
+      } catch (err) {
+        pesan.textContent = "Tidak bisa terhubung ke server.";
+      }
+    });
+  </script>
+</body>
+</html>
