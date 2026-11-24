@@ -1,65 +1,70 @@
 package com.rpl.SmartLibrary.sql;
 
-import com.rpl.SmartLibrary.CustomExceptions.*;
 import com.rpl.SmartLibrary.classes.Buku;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.rpl.SmartLibrary.sql.BukuRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
 
 @Service
-@Transactional(readOnly = true)
 public class BukuService {
-    private final BukuRepository repo;
 
-    public BukuService(BukuRepository repo) { this.repo = repo; }
+    private final BukuRepository bukuRepository;
 
-    public Page<BukuResponse> list(Pageable pageable) {
-        return repo.findAll(pageable).map(BukuResponse::from);
+    public BukuService(BukuRepository bukuRepository) {
+        this.bukuRepository = bukuRepository;
     }
 
-    public BukuResponse get(Long id) {
-        return BukuResponse.from(find(id));
-    }
-
+    // CREATE
     @Transactional
-    public BukuResponse create(BukuRequest req) {
-        if (repo.existsByIsbn(req.isbn())) {
-            throw new DuplicateIsbnException(req.isbn());
+    public Buku tambah(Buku buku) {
+        if (buku.getIsbn() != null && bukuRepository.existsByIsbn(buku.getIsbn())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "ISBN sudah terdaftar");
         }
-        Buku b = new Buku();
-        b.setIsbn(req.isbn());
-        b.setJudul(req.judul());
-        b.setPenulis(req.penulis());
-        b.setPenerbit(req.penerbit());
-        b.setTahunTerbit(req.tahunTerbit());
-        b.setKategori(req.kategori());
-        b.setSinopsis(req.sinopsis());
-        b.setStok(req.stok());
-        return BukuResponse.from(repo.save(b));
+        buku.setId(0); // pastikan INSERT, bukan UPDATE
+        return bukuRepository.save(buku);
     }
 
+    // READ (semua / pencarian judul)
+    @Transactional(readOnly = true)
+    public List<Buku> semua(String judul) {
+        if (judul != null && !judul.isBlank()) {
+            return bukuRepository.findByJudulContainingIgnoreCase(judul);
+        }
+        return bukuRepository.findAll();
+    }
+
+    // READ (by id)
+    @Transactional(readOnly = true)
+    public Buku cariById(long id) {
+        return bukuRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Buku id " + id + " tidak ditemukan"));
+    }
+
+    // UPDATE
     @Transactional
-    public BukuResponse update(Long id, BukuRequest req) {
-        Buku b = find(id);
-        b.setIsbn(req.isbn());
-        b.setJudul(req.judul());
-        b.setPenulis(req.penulis());
-        b.setPenerbit(req.penerbit());
-        b.setTahunTerbit(req.tahunTerbit());
-        b.setKategori(req.kategori());
-        b.setSinopsis(req.sinopsis());
-        b.setStok(req.stok());
-        return BukuResponse.from(b);
+    public Buku ubah(long id, Buku data) {
+        Buku buku = cariById(id);
+        buku.setIsbn(data.getIsbn());
+        buku.setJudul(data.getJudul());
+        buku.setPenulis(data.getPenulis());
+        buku.setPenerbit(data.getPenerbit());
+        buku.setTahunTerbit(data.getTahunTerbit());
+        buku.setKategori(data.getKategori());
+        buku.setSinopsis(data.getSinopsis());
+        buku.setStok(data.getStok());
+        return bukuRepository.save(buku);
     }
 
+    // DELETE
     @Transactional
-    public void delete(Long id) {
-        if (!repo.existsById(id)) throw new BukuNotFoundException(id);
-        repo.deleteById(id);
-    }
-
-    private Buku find(Long id) {
-        return repo.findById(id).orElseThrow(() -> new BukuNotFoundException(id));
+    public void hapus(long id) {
+        if (!bukuRepository.existsById(id)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Buku id " + id + " tidak ditemukan");
+        }
+        bukuRepository.deleteById(id);
     }
 }

@@ -1,47 +1,46 @@
 package com.rpl.SmartLibrary.sql;
 
-import jakarta.validation.Valid;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.rpl.SmartLibrary.classes.Buku;
+import com.rpl.SmartLibrary.sql.BukuService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/buku")
 public class BukuController {
-    private final BukuService service;
 
-    public BukuController(BukuService service) { this.service = service; }
+    private final BukuService bukuService;
 
-    @GetMapping
-    public Page<BukuResponse> list(Pageable pageable) {
-        return service.list(pageable);          // ?page=0&size=20&sort=title
-    }
-
-    @GetMapping("/{id}")
-    public BukuResponse get(@PathVariable Long id) {
-        return service.get(id);
+    public BukuController(BukuService bukuService) {
+        this.bukuService = bukuService;
     }
 
     @PostMapping
-    public ResponseEntity<BukuResponse> create(@Valid @RequestBody BukuRequest req) {
-        BukuResponse created = service.create(req);
-        URI location = URI.create("/api/buku/" + created.id());
-        return ResponseEntity.created(location).body(created);   // 201 + Location header
+    public ResponseEntity<Buku> tambah(@RequestBody Buku buku) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(bukuService.tambah(buku));
+    }
+
+    @GetMapping
+    public List<Buku> semua(@RequestParam(required = false) String judul) {
+        return bukuService.semua(judul);
+    }
+
+    @GetMapping("/{id}")
+    public Buku detail(@PathVariable long id) {
+        return bukuService.cariById(id);
     }
 
     @PutMapping("/{id}")
-    public BukuResponse update(@PathVariable Long id, @Valid @RequestBody BukuRequest req) {
-        return service.update(id, req);
+    public Buku ubah(@PathVariable long id, @RequestBody Buku buku) {
+        return bukuService.ubah(id, buku);
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)       // 204
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> hapus(@PathVariable long id) {
+        bukuService.hapus(id);
+        return ResponseEntity.noContent().build();
     }
 }
-
